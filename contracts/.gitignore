@@ -1,0 +1,32 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Private keys and wallet files
+*.key
+*.pem
+keystore/
+keystores/
+
+# Node and Vite
+node_modules/
+dist/
+coverage/
+
+# Foundry generated files
+out/
+cache/
+broadcast/
+
+# Local editor and OS files
+.DS_Store
+.vscode/
+
+# Logs
+*.log
+
+# Temporary backups
+*.backup.tsx.txt
+*.before-*.tsx.txt
+*.module7-complete.tsx.txt
