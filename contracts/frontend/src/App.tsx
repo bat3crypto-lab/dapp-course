@@ -20,6 +20,7 @@ import './App.css'
 
 import ProjectCard from './ProjectCard'
 import type { ProjectDetails } from './ProjectCard'
+import ActivityDashboard from './ActivityDashboard'
 
 function App() {
   // 1. Wallet connection
@@ -342,15 +343,12 @@ function App() {
           />
         ))}
 
-      {registeredProjects.map((project) => (
-          <ProjectCard
-            key={project[0].toString()}
-            project={project}
-            onUpdated={() => {
-              void refetchProjects()
-            }}
-          />
-        ))}
+
+     
+      </section>
+
+      <section className="card">
+        <ActivityDashboard />
       </section>
 
       <footer>
