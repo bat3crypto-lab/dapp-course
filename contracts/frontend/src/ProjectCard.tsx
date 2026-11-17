@@ -305,6 +305,18 @@ export default function ProjectCard({
         </form>
       )}
 
+{isAwaitingTransferWallet && (
+  <p role="status">
+    Please confirm the ownership transfer in MetaMask.
+  </p>
+)}
+
+{isConfirmingTransfer && (
+  <p role="status">
+    Ownership transfer submitted. Waiting for Sepolia confirmation...
+  </p>
+)}
+
       {transferHash && (
         <p>
           <a
@@ -336,7 +348,17 @@ export default function ProjectCard({
       )}
 
 
+{isAwaitingWallet && (
+  <p role="status">
+    Please confirm the project update in MetaMask.
+  </p>
+)}
 
+{isConfirming && (
+  <p role="status">
+    Transaction submitted. Waiting for Sepolia confirmation...
+  </p>
+)}
 
       {hash && (
         <p>

@@ -240,6 +240,18 @@ function App() {
           </p>
         )}
 
+{isAwaitingWallet && (
+  <p role="status">
+    Please confirm the project registration in MetaMask.
+  </p>
+)}
+
+{isConfirming && (
+  <p role="status">
+    Registration submitted. Waiting for Sepolia confirmation...
+  </p>
+)}
+
         {transactionHash && (
           <p>
             Transaction:{' '}
