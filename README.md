@@ -10,6 +10,10 @@ Built using **Solidity, Foundry, React, TypeScript, Wagmi, Viem, and MetaMask**.
 - **GitHub:** https://github.com/bat3crypto-lab/dapp-course
 - **Smart Contract:** https://sepolia.etherscan.io/address/0x0390044B74c9441DB4D1D802cE504E41F4baDa34
 
+## Screenshot
+
+![Project Registry dApp screenshot](screenshots/project-registry.png)
+
 ## Features
 
 - Connect an Ethereum wallet using MetaMask.
