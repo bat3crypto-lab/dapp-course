@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   createPublicClient,
   http,
@@ -41,87 +41,112 @@ export default function ActivityDashboard() {
   const [activities, setActivities] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [filter, setFilter] = useState('all')
 
-  useEffect(() => {
-    let cancelled = false
+  const loadActivity = useCallback(async () => {
+    setLoading(true)
+    setError(null)
 
-    async function loadActivity() {
-      try {
-        const latestBlock = await client.getBlockNumber()
+    try {
+      const latestBlock = await client.getBlockNumber()
 
-        const fromBlock =
-          latestBlock > 10_000n
-            ? latestBlock - 10_000n
-            : 0n
+      const fromBlock =
+        latestBlock > 10_000n
+          ? latestBlock - 10_000n
+          : 0n
 
-        const logs = await client.getLogs({
-          address: contractAddress,
-          events,
-          fromBlock,
-          toBlock: latestBlock,
+      const logs = await client.getLogs({
+        address: contractAddress,
+        events,
+        fromBlock,
+        toBlock: latestBlock,
+      })
+
+      const results = logs
+        .map((log) => ({
+          event: log.eventName,
+          projectId: log.args.id?.toString() ?? '?',
+          transactionHash: log.transactionHash,
+          blockNumber: log.blockNumber,
+          logIndex: log.logIndex,
+        }))
+        .sort((a, b) => {
+          if (a.blockNumber !== b.blockNumber) {
+            return a.blockNumber > b.blockNumber ? -1 : 1
+          }
+
+          return b.logIndex - a.logIndex
         })
 
-        const results = logs
-          .map((log) => ({
-            event: log.eventName,
-            projectId: log.args.id?.toString() ?? '?',
-            transactionHash: log.transactionHash,
-            blockNumber: log.blockNumber,
-            logIndex: log.logIndex,
-          }))
-          .sort((a, b) => {
-            if (a.blockNumber !== b.blockNumber) {
-              return a.blockNumber > b.blockNumber ? -1 : 1
-            }
-
-            return b.logIndex - a.logIndex
-          })
-
-        if (!cancelled) {
-          setActivities(results)
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : 'Unable to load activity'
-          )
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
-    }
-
-    loadActivity()
-
-    return () => {
-      cancelled = true
+      setActivities(results)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to load activity'
+      )
+    } finally {
+      setLoading(false)
     }
   }, [])
 
-  if (loading) {
-    return <p>Loading blockchain activity...</p>
-  }
+  useEffect(() => {
+    void loadActivity()
+  }, [loadActivity])
 
-  if (error) {
-    return (
-      <section>
-        <h2>Project Activity</h2>
-        <p role="alert">Error: {error}</p>
-      </section>
-    )
-  }
+  const filteredActivities = activities.filter(
+    (activity) =>
+      filter === 'all' || activity.event === filter
+  )
 
   return (
     <section>
       <h2>Project Activity</h2>
 
-      {activities.length === 0 ? (
-        <p>No recent activity found.</p>
-      ) : (
+      <div>
+        <label htmlFor="activity-filter">
+          Filter activity:{' '}
+        </label>
+
+        <select
+          id="activity-filter"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+        >
+          <option value="all">All activity</option>
+          <option value="ProjectRegistered">
+            Registrations
+          </option>
+          <option value="ProjectUpdated">
+            Updates
+          </option>
+          <option value="OwnershipTransferred">
+            Ownership transfers
+          </option>
+        </select>
+
+        <button
+          type="button"
+          onClick={() => void loadActivity()}
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Refresh Activity'}
+        </button>
+      </div>
+
+      {error && (
+        <p role="alert">Error: {error}</p>
+      )}
+
+      {loading && (
+        <p role="status">Loading blockchain activity...</p>
+      )}
+
+      {!loading && !error && filteredActivities.length === 0 && (
+        <p>No matching recent activity found.</p>
+      )}
+
+      {!loading && !error && filteredActivities.length > 0 && (
         <table>
           <thead>
             <tr>
@@ -132,7 +157,7 @@ export default function ActivityDashboard() {
           </thead>
 
           <tbody>
-            {activities.map((activity) => (
+            {filteredActivities.map((activity) => (
               <tr
                 key={`${activity.transactionHash}-${activity.logIndex}`}
               >
@@ -155,3 +180,4 @@ export default function ActivityDashboard() {
     </section>
   )
 }
+
