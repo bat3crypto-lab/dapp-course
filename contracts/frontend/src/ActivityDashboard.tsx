@@ -13,7 +13,7 @@ const contractAddress =
 const client = createPublicClient({
   chain: sepolia,
   transport: http(
-    'https://ethereum-sepolia-rpc.publicnode.com'
+    'https://ethereum-sepolia.publicnode.com'
   ),
 })
 
@@ -48,16 +48,21 @@ export default function ActivityDashboard() {
     setError(null)
 
     try {
-      const latestBlock = await client.getBlockNumber()
+      const currentBlock = await client.getBlockNumber()
+
+// Stay 20 blocks behind the reported head to avoid
+// requests reaching an RPC node that is slightly behind.
+const latestBlock =
+  currentBlock > 20n ? currentBlock - 20n : 0n
 
       
       
-           const batchSize = 5_000n
+           const batchSize = 1_000n
 
       // Temporarily query only recent blocks.
-      const earliestBlock =
-        latestBlock >= 20_000n - 1n
-          ? latestBlock - 20_000n + 1n
+                const earliestBlock =
+        latestBlock >= 5_000n - 1n
+          ? latestBlock - 5_000n + 1n
           : 0n
 
       const logs = []
