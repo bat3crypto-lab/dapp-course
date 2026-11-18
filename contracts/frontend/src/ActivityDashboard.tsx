@@ -52,11 +52,13 @@ export default function ActivityDashboard() {
 
       
       
-      const batchSize = 5_000n
+           const batchSize = 5_000n
 
-      // The block where ProjectRegistry was deployed.
-      const earliestBlock = 12_141_147n
-
+      // Temporarily query only recent blocks.
+      const earliestBlock =
+        latestBlock >= 20_000n - 1n
+          ? latestBlock - 20_000n + 1n
+          : 0n
 
       const logs = []
 
