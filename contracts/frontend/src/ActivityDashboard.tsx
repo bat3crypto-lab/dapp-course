@@ -50,17 +50,43 @@ export default function ActivityDashboard() {
     try {
       const latestBlock = await client.getBlockNumber()
 
-      const fromBlock =
-        latestBlock > 10_000n
-          ? latestBlock - 10_000n
-          : 0n
+      
+      
+      const batchSize = 5_000n
 
-      const logs = await client.getLogs({
-        address: contractAddress,
-        events,
-        fromBlock,
-        toBlock: latestBlock,
-      })
+      // The block where ProjectRegistry was deployed.
+      const earliestBlock = 12_141_147n
+
+
+      const logs = []
+
+      let toBlock = latestBlock
+
+      while (toBlock >= earliestBlock) {
+        const fromBlock =
+          toBlock >= batchSize - 1n
+            ? toBlock - batchSize + 1n
+            : 0n
+
+        const batchLogs = await client.getLogs({
+          address: contractAddress,
+          events,
+          fromBlock:
+            fromBlock < earliestBlock
+              ? earliestBlock
+              : fromBlock,
+          toBlock,
+        })
+
+        logs.push(...batchLogs)
+
+        if (fromBlock <= earliestBlock) {
+          break
+        }
+
+        toBlock = fromBlock - 1n
+      }
+
 
       const results = logs
         .map((log) => ({
