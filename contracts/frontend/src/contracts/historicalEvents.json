@@ -1,0 +1,23 @@
+[
+  {
+    "event": "ProjectRegistered",
+    "projectId": "1",
+    "transactionHash": "0xeb9e7fe71475c2e8c196e4143c80308150ffee94858c015b408ab9367953179e",
+    "blockNumber": "12141862",
+    "logIndex": 30
+  },
+  {
+    "event": "ProjectUpdated",
+    "projectId": "2",
+    "transactionHash": "0x5d88c51e3a7cf0e709c18011b80be564f9447bfa15041ee4bdaa66d64d438047",
+    "blockNumber": "12155538",
+    "logIndex": 46
+  },
+  {
+    "event": "OwnershipTransferred",
+    "projectId": "2",
+    "transactionHash": "0x84b0d0e380b36a4081a436e8fd65bc4ec3eb9e58579a911f22c2117ddbc6dca9",
+    "blockNumber": "12155568",
+    "logIndex": 287
+  }
+]

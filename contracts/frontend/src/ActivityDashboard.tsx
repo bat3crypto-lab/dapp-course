@@ -6,6 +6,7 @@ import {
   parseAbiItem,
 } from 'viem'
 import { sepolia } from 'viem/chains'
+import historicalEvents from './contracts/historicalEvents.json'
 
 const contractAddress =
   '0x0390044B74c9441DB4D1D802cE504E41F4baDa34'
@@ -47,9 +48,17 @@ export default function ActivityDashboard() {
     setLoading(true)
     setError(null)
 
+    const savedActivities: ActivityItem[] = historicalEvents.map(
+      (activity) => ({
+        ...activity,
+        blockNumber: BigInt(activity.blockNumber),
+      })
+    )
+
+    setActivities(savedActivities)
+
     try {
       const currentBlock = await client.getBlockNumber()
-
 // Stay 20 blocks behind the reported head to avoid
 // requests reaching an RPC node that is slightly behind.
 const latestBlock =
@@ -111,7 +120,23 @@ const latestBlock =
           return b.logIndex - a.logIndex
         })
 
-      setActivities(results)
+    
+
+      const uniqueActivities = new Map()
+
+      for (const activity of [...savedActivities, ...results]) {
+        const key = `${activity.transactionHash}-${activity.logIndex}`
+        uniqueActivities.set(key, activity)
+      }
+
+      const combinedActivities = [...uniqueActivities.values()].sort(
+        (a, b) =>
+          a.blockNumber !== b.blockNumber
+            ? a.blockNumber > b.blockNumber ? -1 : 1
+            : b.logIndex - a.logIndex
+      )
+
+      setActivities(combinedActivities)
     } catch (err) {
       setError(
         err instanceof Error
